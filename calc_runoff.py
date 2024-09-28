@@ -12,11 +12,39 @@ class DatumStructure:
         return self.rating + self.runoff_rating
 
 
+class VoterStructure:
+    def __init__(self):
+        self.uv = 0
+        self.dv = 0
+        self.runoff_uv = 0
+        self.runoff_dv = 0
+
+    def total_vote(self):
+        return self.uv - self.dv
+
+    def total_runoff_vote(self):
+        return self.runoff_uv - self.runoff_dv
+
+    def increment_uv(self):
+        self.uv += 1
+
+    def increment_dv(self):
+        self.dv += 1
+
+    def increment_runoff_uv(self):
+        self.runoff_uv += 1
+
+    def increment_runoff_dv(self):
+        self.runoff_dv += 1
+
+
 data = {
     "scp": [],
     "goi-format": [],
     "tale": []
 }
+
+voters = {}
 
 with wikidot.Client() as client:
     site = client.site.get("scp-jp")
@@ -44,8 +72,25 @@ with wikidot.Client() as client:
         if page:
             for tag in data.keys():
                 if tag in page.tags:
-                    data[tag].append(DatumStructure(fullname, page.rating, runoff_page.rating, page.created_by.unix_name))
+                    data[tag].append(
+                        DatumStructure(fullname, page.rating, runoff_page.rating, page.created_by.unix_name))
                     break
+
+            for v in page.votes:
+                if v.user.unix_name not in voters:
+                    voters[v.user.unix_name] = VoterStructure()
+                if v.value == 1:
+                    voters[v.user.unix_name].increment_uv()
+                elif v.value == -1:
+                    voters[v.user.unix_name].increment_dv()
+
+            for v in runoff_page.votes:
+                if v.user.unix_name not in voters:
+                    voters[v.user.unix_name] = VoterStructure()
+                if v.value == 1:
+                    voters[v.user.unix_name].increment_runoff_uv()
+                elif v.value == -1:
+                    voters[v.user.unix_name].increment_runoff_dv()
 
 for tag, datums in data.items():
     datums.sort(key=lambda datum: datum.total_rating(), reverse=True)
@@ -54,7 +99,13 @@ with open("calc_runoff.txt", "w") as f:
     for tag, datums in data.items():
         f.write(f"{tag}\n")
         f.write("\n".join(
-            [f"{datum.total_rating()}\t({datum.rating} + {datum.runoff_rating})\t{datum.fullname} ({datum.author})" for datum
-             in
-             datums]))
+            [
+                f"{str(datum.total_rating()).rjust(3, ' ')}\t({str(datum.rating).rjust(3, ' ')} + {str(datum.runoff_rating).rjust(3, ' ')})\t{datum.fullname} ({datum.author})"
+                for datum
+                in
+                datums]))
         f.write("\n\n")
+
+    f.write("Voters\n")
+    for user, voter in voters.items():
+        f.write(f"{user}\t{voter.total_vote()}({voter.uv} - {voter.dv})\t{voter.total_runoff_vote()}({voter.runoff_uv} - {voter.runoff_dv})\n")

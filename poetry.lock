@@ -342,13 +342,13 @@ files = [
 
 [[package]]
 name = "wikidot"
-version = "3.1.0.dev5"
+version = "3.1.0.dev7"
 description = "Wikidot Utility Library"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "wikidot-3.1.0.dev5-py3-none-any.whl", hash = "sha256:6b8959de62b15497f2cbcb5e0ffc56cc8fb3cfa0e021086cac2af37b04e95be1"},
-    {file = "wikidot-3.1.0.dev5.tar.gz", hash = "sha256:57bbbe7d815398434226b4fa3182d8f0ce2ccb63acc7054704fa3513ca87ac7e"},
+    {file = "wikidot-3.1.0.dev7-py3-none-any.whl", hash = "sha256:b629398e9aeb0536f32da971bbe5d936eb8b51073e368611928ba70ee14fa50f"},
+    {file = "wikidot-3.1.0.dev7.tar.gz", hash = "sha256:3780056c1c55b5175dbf9591ecdb64c44369a1aef80e4ed53454609389ca2ce4"},
 ]
 
 [package.dependencies]
@@ -364,4 +364,4 @@ lint = ["flake8", "isort", "mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7cd42ed12d4525409f05b0e610108e514c94c6200d28491719a132df6cd0d5e5"
+content-hash = "c1f05021b4c77c9bc444ee96725b4b050d2594b37e7834c8a91ab10c4aa619e3"

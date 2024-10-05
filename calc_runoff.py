@@ -1,4 +1,5 @@
 import wikidot
+import datetime
 
 
 class DatumStructure:
@@ -44,7 +45,7 @@ data = {
     "tale": []
 }
 
-voters = {}
+# voters = {}
 
 with wikidot.Client() as client:
     site = client.site.get("scp-jp")
@@ -57,6 +58,7 @@ with wikidot.Client() as client:
             tags=f"+恐怖コン24 -コンテスト"
         )
     }
+    page_time = datetime.datetime.now()
 
     runoff_pages = {
         page.fullname.removeprefix("poll:terror24-"): page
@@ -66,6 +68,7 @@ with wikidot.Client() as client:
             name="terror24-*"
         )
     }
+    runoff_time = datetime.datetime.now()
 
     for fullname, runoff_page in runoff_pages.items():
         page = pages.get(fullname)
@@ -76,26 +79,28 @@ with wikidot.Client() as client:
                         DatumStructure(fullname, page.rating, runoff_page.rating, page.created_by.unix_name))
                     break
 
-            for v in page.votes:
-                if v.user.unix_name not in voters:
-                    voters[v.user.unix_name] = VoterStructure()
-                if v.value == 1:
-                    voters[v.user.unix_name].increment_uv()
-                elif v.value == -1:
-                    voters[v.user.unix_name].increment_dv()
-
-            for v in runoff_page.votes:
-                if v.user.unix_name not in voters:
-                    voters[v.user.unix_name] = VoterStructure()
-                if v.value == 1:
-                    voters[v.user.unix_name].increment_runoff_uv()
-                elif v.value == -1:
-                    voters[v.user.unix_name].increment_runoff_dv()
+            # for v in page.votes:
+            #     if v.user.unix_name not in voters:
+            #         voters[v.user.unix_name] = VoterStructure()
+            #     if v.value == 1:
+            #         voters[v.user.unix_name].increment_uv()
+            #     elif v.value == -1:
+            #         voters[v.user.unix_name].increment_dv()
+            #
+            # for v in runoff_page.votes:
+            #     if v.user.unix_name not in voters:
+            #         voters[v.user.unix_name] = VoterStructure()
+            #     if v.value == 1:
+            #         voters[v.user.unix_name].increment_runoff_uv()
+            #     elif v.value == -1:
+            #         voters[v.user.unix_name].increment_runoff_dv()
 
 for tag, datums in data.items():
     datums.sort(key=lambda datum: datum.total_rating(), reverse=True)
 
 with open("calc_runoff.txt", "w") as f:
+    f.write(f"Page Time: {page_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+    f.write(f"Runoff Time: {runoff_time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
     for tag, datums in data.items():
         f.write(f"{tag}\n")
         f.write("\n".join(
@@ -106,6 +111,6 @@ with open("calc_runoff.txt", "w") as f:
                 datums]))
         f.write("\n\n")
 
-    f.write("Voters\n")
-    for user, voter in voters.items():
-        f.write(f"{user}\t{voter.total_vote()}({voter.uv} - {voter.dv})\t{voter.total_runoff_vote()}({voter.runoff_uv} - {voter.runoff_dv})\n")
+    # f.write("Voters\n")
+    # for user, voter in voters.items():
+    #     f.write(f"{user}\t{voter.total_vote()}({voter.uv} - {voter.dv})\t{voter.total_runoff_vote()}({voter.runoff_uv} - {voter.runoff_dv})\n")
